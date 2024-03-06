@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Happy Birthday Nanna</title>
+    <style>
+        body{
+            background-color:aqua;
+        }
+        h1{
+            color:red;
+            font-size: 50px;
+        }
+    </style>
+    <link rel="icon" href="logo.png" type="images/x-icon">
+</head>
+<body>
+    <h1>Happy 40<sup>th</sup> Birthday Nanna!!!</h1>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.7.0/lib/p5.js"></script>
+    <script>
+        function setup(){
+            createCanvas(1000, 1000)
+        }
+        let b=[]
+        for(let i=0;i<50;i++){
+            b.push([Math.random()*1000, Math.random()*1000, 0, 0, Math.random()*1000, Math.random()*1000, 0])
+        }
+        function boid(x, y, vx, vy, b, b2, c, xc){
+            noStroke()
+            console.log(vy+" "+xc)
+            fill(lerpColor(xc, color(0, 100), 0.6))
+            ellipse(x, y, 21)
+            fill(lerpColor(xc, color(0, 100), 0.3))
+            ellipse(x, y, 14)
+            fill(xc)
+            ellipse(x, y, 7)
+        }
+        let t=-1
+        function iter(){
+            for(let i=0;i<b.length;i++){
+                a=b[i]
+                a[0]+=a[2]
+                a[1]+=a[3]
+                a[2]=0
+                a[3]=0
+                a[6]-=2;
+                let nx=b[i][4]
+                let ny=b[i][5]
+                let nn=1
+                let imx=0
+                let imy=0
+                let inum=0
+                let anvx=0
+                let anvy=0
+                for(let j=0;j<b.length;j++){
+                    c=b[j]
+                    if(j!=i && Math.sqrt(Math.pow(b[j][0]-b[i][0], 2)+Math.pow(b[j][1]-b[i][1], 2))<25){
+                        if(Math.sqrt(Math.pow(b[j][0]-b[i][0], 2)+Math.pow(b[j][1]-b[i][1], 2))<7){
+                            imx+=b[j][0]
+                            imy+=b[j][1]
+                            inum++;
+                            a[6]+=20;
+                        }else{
+                            nx+=b[j][0]
+                            ny+=b[j][1]
+                            nn++;
+                            anvx+=b[j][2]
+                            anvy+=b[j][3]
+                        }
+                    }
+                }
+                //cohesion
+                if(nn){
+                    if(i>t){
+                        nx=nx/nn
+                        ny=ny/nn
+                        a[2]+=(nx-a[0])/5
+                        a[3]+=(ny-a[1])/5
+                    }
+                    //alignment
+                    anvx=anvx/nn
+                    anvy=anvy/nn
+                    a[2]+=(anvx-a[2])
+                    a[3]+=(anvy-a[3])
+
+                }
+                //separation
+                if(inum){
+                    imx=imx/inum
+                    imy=imy/inum
+                    a[2]-=(imx-a[0])
+                    a[3]+=(imy-a[1])*5
+                }
+                if(b[i][0]<50){
+                    b[i][2]+=10
+                }else if(b[i][0]>950){
+                    b[i][2]-=10
+                }
+                if(b[i][1]<50){
+                    b[i][3]+=10
+                }else if(b[i][1]>950){
+                    b[i][3]-=10
+                }
+                a[2]+=+Math.random()*2-1
+                a[3]+=+Math.random()*2-1
+            }
+        }
+        iter()
+        function draw(){
+            background(0, 50)
+            console.log(b[0])
+            for(let i=0;i<b.length;i++){
+                let xc;
+                if(i>t){
+                    xc=color(b[i][6], 255-b[i][6], 255-b[i][6])
+                }else{
+                    xc=color(b[i][6], 255-b[i][6], b[i][6])
+                }
+                let p=[...b[i]]
+                p.push(xc)
+                boid(...p)
+            }
+            iter()
+            if(Math.random()>0.8){
+                t++;
+                b.push([Math.random()*1000, Math.random()*1000, 0, 0, Math.random()*1000, Math.random()*1000, 0])
+            }
+            if(Math.random()>0.999){
+                t++;
+            }
+        }
+    </script>
+</body>
+</html>
